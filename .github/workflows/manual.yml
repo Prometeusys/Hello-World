@@ -4,7 +4,7 @@ on:
     inputs:
       auth:
         description: Imput you NGROK AUTH
-        required: false
+        required: true
         
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
     - name: unzip ngrock
       run: unzip ngrok-stable-linux-amd64.zip > /dev/null 2>&1
     - name: active
-      run: .\ngrok\ngrok.exe authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+      run: ./ngrok authtoken ${{ github.event.inputs.auth }}
     - name: nohup
       run: nohup ./ngrok tcp 3388 &>/dev/null &
     - name: qemu
