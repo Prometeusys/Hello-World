@@ -1,32 +1,32 @@
-name: WY
-
-on: workflow_dispatch
-
+name: twin7
+on:
+  workflow_dispatch:
+    inputs:
+      auth:
+        description: Imput you NGROK AUTH
+        required: false
+        
 jobs:
   build:
-
-    runs-on: windows-latest
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Download Ngrok
-      run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract Ngrok Archive
-      run: Expand-Archive ngrok.zip
-    - name: Auth
+    - name: Download windows files
+      run: wget -O w7x64.img https://bit.ly/akuhnetw7X64
+    - name: apt update
+      run: apt-get update -y
+    - name: Download ngrok
+      run: wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > /dev/null 2>&1
+    - name: unzip ngrock
+      run: unzip ngrok-stable-linux-amd64.zip > /dev/null 2>&1
+    - name: active
       run: .\ngrok\ngrok.exe authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-    - name: Firewall for RDP
-      run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - name: Allow RDP Property from Regdit
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - name: Assign User
-      run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "fG7pU2uJ3rP4vO3x" -Force)
-    - name: Create Tunnel
-      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp 3389"'
+    - name: nohup
+      run: nohup ./ngrok tcp 3388 &>/dev/null &
+    - name: qemu
+      run: apt-get install qemu-system-x86 -y
     - name: Starting
-      run: Invoke-WebRequest https://drive.google.com/u/2/uc?id=1ioSVFBLfmCA8BNtX0GOjreYwBdHZjbW5 -OutFile start.bat
-    - name: You IP
-      run: cmd /c start.bat
+      run: qemu-system-x86_64 -hda w7x64.img -m 4G -smp cores=4 -net user,hostfwd=tcp::3388-:3389 -net nic -object rng-random,id=rng0,filename=/dev/urandom -device virtio-rng-pci,rng=rng0 -vga vmware -nographic &>/dev/null &
+    - name: RDP Address:
+      run: curl --silent --show-error http://127.0.0.1:4040/api/tunnels | sed -nE 's/.*public_url":"tcp:..([^"]*).*/\1/p'
     - name: Keep Alive
       run: sleep 21600
